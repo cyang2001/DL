@@ -1,5 +1,5 @@
 """
-Author: Chen YANG
+Author: @Chen YANG
 Date: 2025-05-27
 Description: This file contains the LSTM with attention mechanism for sign language classification.
 """
