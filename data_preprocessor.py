@@ -1,7 +1,7 @@
 
 """
 Author: @De oliveira Léna & @Sron Sarah 
-Date: 2025-06-02
+Date: 03/06/2025
 Data preprocessing module for hand sign language recognition.
 
 This module provides comprehensive data preprocessing capabilities including
