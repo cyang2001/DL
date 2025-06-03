@@ -1,6 +1,6 @@
 
 """
-Author: @Chen YANG
+Author: @De oliveira Léna & @Sron Sarah 
 Date: 2025-06-02
 Data preprocessing module for hand sign language recognition.
 
