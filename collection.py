@@ -39,7 +39,7 @@ def main():
                 draw_styled_landmarks(image, results)
 
                 key = cv2.waitKey(10)
-                if key == 32:  # 空格键
+                if key == 32:  
                     collecting = not collecting
                     if collecting:
                         print(f"Start capturing {start_index+i}th sequence...")
