@@ -6,11 +6,12 @@ Description: This file contains the LSTM with attention mechanism for sign langu
 
 import logging
 from typing import Dict
+import tensorflow as tf
 from keras.models import Model
 from keras.layers import Input, LSTM, Dense, Dropout, Flatten, Activation, RepeatVector, Permute, Multiply, Lambda, LayerNormalization
 from keras.optimizers import Adam
 from keras.regularizers import l2
-from keras import backend as K
+from keras.metrics import TopKCategoricalAccuracy
 import numpy as np
 from utils import get_logger
 from keras.callbacks import EarlyStopping, ReduceLROnPlateau, ModelCheckpoint
@@ -63,7 +64,9 @@ class AttentionLSTMClassifier:
         
         # Use attention weights to weight the LSTM output
         attended_output = Multiply(name='attention_multiply')([lstm_output, attention_weights])
-        attended_output = Lambda(lambda x: K.sum(x, axis=1), name='attention_sum')(attended_output)
+        attended_output = Lambda(lambda x: tf.reduce_sum(x, axis=1), 
+                               output_shape=(lstm_output.shape[-1],), 
+                               name='attention_sum')(attended_output)
         
         return attended_output
     
@@ -107,7 +110,7 @@ class AttentionLSTMClassifier:
         model.compile(
             optimizer=Adam(learning_rate=self.learning_rate),
             loss='categorical_crossentropy',
-            metrics=['accuracy', 'top_3_accuracy']
+            metrics=['accuracy', TopKCategoricalAccuracy(k=3, name='top_3_accuracy')]
         )
         self.model = model
         self.logger.info(f"Model built successfully with {model.count_params()} parameters")

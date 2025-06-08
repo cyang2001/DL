@@ -1,0 +1,662 @@
+[
+    {
+        "sequence_id": "learning_0",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9824757629839359,
+        "statistics": {
+            "zero_ratio": 0.007581227436823105,
+            "outlier_ratio": 0.009943009579240936,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "learning_1",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9711931033388428,
+        "statistics": {
+            "zero_ratio": 0.01895306859205776,
+            "outlier_ratio": 0.009853828069099459,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "learning_2",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9631243036056514,
+        "statistics": {
+            "zero_ratio": 0.02527075812274368,
+            "outlier_ratio": 0.011604938271604939,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "learning_3",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9714280323015432,
+        "statistics": {
+            "zero_ratio": 0.01768953068592058,
+            "outlier_ratio": 0.010882437012536241,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "learning_4",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9716117882736123,
+        "statistics": {
+            "zero_ratio": 0.01768953068592058,
+            "outlier_ratio": 0.010698681040467149,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "learning_5",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9748587246636624,
+        "statistics": {
+            "zero_ratio": 0.01516245487364621,
+            "outlier_ratio": 0.00997882046269143,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "learning_6",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9723468121618887,
+        "statistics": {
+            "zero_ratio": 0.01768953068592058,
+            "outlier_ratio": 0.00996365715219078,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "learning_7",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9725509854641876,
+        "statistics": {
+            "zero_ratio": 0.01768953068592058,
+            "outlier_ratio": 0.009759483849891788,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "learning_8",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9704366891509658,
+        "statistics": {
+            "zero_ratio": 0.01895306859205776,
+            "outlier_ratio": 0.010610242256976387,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "learning_9",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9705797945378615,
+        "statistics": {
+            "zero_ratio": 0.01895306859205776,
+            "outlier_ratio": 0.010467136870080752,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "deep_0",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9796060325769193,
+        "statistics": {
+            "zero_ratio": 0.007581227436823105,
+            "outlier_ratio": 0.01281273998625763,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "deep_1",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9648555790620361,
+        "statistics": {
+            "zero_ratio": 0.01895306859205776,
+            "outlier_ratio": 0.016191352345906164,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "deep_2",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9547646181198041,
+        "statistics": {
+            "zero_ratio": 0.029061371841155235,
+            "outlier_ratio": 0.016174010039040714,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "deep_3",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9703988028650309,
+        "statistics": {
+            "zero_ratio": 0.01516245487364621,
+            "outlier_ratio": 0.014438742261322907,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "deep_4",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9637214379195523,
+        "statistics": {
+            "zero_ratio": 0.02148014440433213,
+            "outlier_ratio": 0.014798417676115517,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "deep_5",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9693410184964957,
+        "statistics": {
+            "zero_ratio": 0.016425992779783394,
+            "outlier_ratio": 0.014232988723720969,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "deep_6",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.972698766784657,
+        "statistics": {
+            "zero_ratio": 0.01263537906137184,
+            "outlier_ratio": 0.014665854153971156,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "deep_7",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9670430471188693,
+        "statistics": {
+            "zero_ratio": 0.01895306859205776,
+            "outlier_ratio": 0.014003884289072881,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "deep_8",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9685863232299706,
+        "statistics": {
+            "zero_ratio": 0.01516245487364621,
+            "outlier_ratio": 0.016251221896383186,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "deep_9",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9727841241948151,
+        "statistics": {
+            "zero_ratio": 0.011371841155234657,
+            "outlier_ratio": 0.0158440346499503,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "thank you_0",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9445620721133621,
+        "statistics": {
+            "zero_ratio": 0.03790613718411552,
+            "outlier_ratio": 0.01753179070252241,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "thank you_1",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9448122284610794,
+        "statistics": {
+            "zero_ratio": 0.03790613718411552,
+            "outlier_ratio": 0.017281634354805085,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "thank you_2",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.94474968937415,
+        "statistics": {
+            "zero_ratio": 0.03790613718411552,
+            "outlier_ratio": 0.017344173441734417,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "thank you_3",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9427745084319883,
+        "statistics": {
+            "zero_ratio": 0.03916967509025271,
+            "outlier_ratio": 0.01805581647775899,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "thank you_4",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9427118871031637,
+        "statistics": {
+            "zero_ratio": 0.03916967509025271,
+            "outlier_ratio": 0.01811843780658359,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "thank you_5",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9442076839540958,
+        "statistics": {
+            "zero_ratio": 0.03790613718411552,
+            "outlier_ratio": 0.01788617886178862,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "thank you_6",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9410064659602191,
+        "statistics": {
+            "zero_ratio": 0.04043321299638989,
+            "outlier_ratio": 0.01856032104339102,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "thank you_7",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9442702230410251,
+        "statistics": {
+            "zero_ratio": 0.03790613718411552,
+            "outlier_ratio": 0.017823639774859287,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "thank you_8",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9428371297608129,
+        "statistics": {
+            "zero_ratio": 0.03916967509025271,
+            "outlier_ratio": 0.017993195148934393,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "thank you_9",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9435773212398779,
+        "statistics": {
+            "zero_ratio": 0.04043321299638989,
+            "outlier_ratio": 0.01598946576373213,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "for_0",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9470219428659158,
+        "statistics": {
+            "zero_ratio": 0.03790613718411552,
+            "outlier_ratio": 0.01507191994996873,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "for_1",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.951605303232284,
+        "statistics": {
+            "zero_ratio": 0.03537906137184116,
+            "outlier_ratio": 0.013015635395874917,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "for_2",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9486383534003886,
+        "statistics": {
+            "zero_ratio": 0.03664259927797834,
+            "outlier_ratio": 0.014719047321633044,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "for_3",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9484926202585903,
+        "statistics": {
+            "zero_ratio": 0.03664259927797834,
+            "outlier_ratio": 0.014864780463431392,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "for_4",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9480762398534521,
+        "statistics": {
+            "zero_ratio": 0.03664259927797834,
+            "outlier_ratio": 0.015281160868569526,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "for_5",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9479305067116538,
+        "statistics": {
+            "zero_ratio": 0.03664259927797834,
+            "outlier_ratio": 0.015426894010367872,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "for_6",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.949172668501745,
+        "statistics": {
+            "zero_ratio": 0.03537906137184116,
+            "outlier_ratio": 0.01544827012641384,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "for_7",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9457711611273292,
+        "statistics": {
+            "zero_ratio": 0.03790613718411552,
+            "outlier_ratio": 0.016322701688555347,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "for_8",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9465633228951007,
+        "statistics": {
+            "zero_ratio": 0.03790613718411552,
+            "outlier_ratio": 0.015530539920783824,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "for_9",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.94568777567809,
+        "statistics": {
+            "zero_ratio": 0.03790613718411552,
+            "outlier_ratio": 0.016406087137794456,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "class_0",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9698150632133812,
+        "statistics": {
+            "zero_ratio": 0.01768953068592058,
+            "outlier_ratio": 0.012495406100698273,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "class_1",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9645741901938545,
+        "statistics": {
+            "zero_ratio": 0.020216606498194945,
+            "outlier_ratio": 0.015209203307950545,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "class_2",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9709282912977452,
+        "statistics": {
+            "zero_ratio": 0.01516245487364621,
+            "outlier_ratio": 0.013909253828608668,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "class_3",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9625824269535787,
+        "statistics": {
+            "zero_ratio": 0.022743682310469315,
+            "outlier_ratio": 0.014673890735952058,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "class_4",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9724333790847212,
+        "statistics": {
+            "zero_ratio": 0.013898916967509025,
+            "outlier_ratio": 0.013667703947769845,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "class_5",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9674874875671726,
+        "statistics": {
+            "zero_ratio": 0.01768953068592058,
+            "outlier_ratio": 0.014822981746906775,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "class_6",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9678199049334457,
+        "statistics": {
+            "zero_ratio": 0.01895306859205776,
+            "outlier_ratio": 0.013227026474496575,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "class_7",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9710504809360638,
+        "statistics": {
+            "zero_ratio": 0.01516245487364621,
+            "outlier_ratio": 0.013787064190289997,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "class_8",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9788784952906333,
+        "statistics": {
+            "zero_ratio": 0.007581227436823105,
+            "outlier_ratio": 0.013540277272543552,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "class_9",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9709079263580254,
+        "statistics": {
+            "zero_ratio": 0.01516245487364621,
+            "outlier_ratio": 0.013929618768328446,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "this_0",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9453542338811336,
+        "statistics": {
+            "zero_ratio": 0.03790613718411552,
+            "outlier_ratio": 0.016739628934750887,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "this_1",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9455418511419216,
+        "statistics": {
+            "zero_ratio": 0.03790613718411552,
+            "outlier_ratio": 0.016552011673962894,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "this_2",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9391357368147337,
+        "statistics": {
+            "zero_ratio": 0.04422382671480144,
+            "outlier_ratio": 0.0166404364704648,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "this_3",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9471053283151548,
+        "statistics": {
+            "zero_ratio": 0.03790613718411552,
+            "outlier_ratio": 0.014988534500729622,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "this_4",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9465841692574104,
+        "statistics": {
+            "zero_ratio": 0.03790613718411552,
+            "outlier_ratio": 0.015509693558474046,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "this_5",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9455418511419216,
+        "statistics": {
+            "zero_ratio": 0.03790613718411552,
+            "outlier_ratio": 0.016552011673962894,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "this_6",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9475222555613504,
+        "statistics": {
+            "zero_ratio": 0.03790613718411552,
+            "outlier_ratio": 0.014571607254534083,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "this_7",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.945875392938878,
+        "statistics": {
+            "zero_ratio": 0.03790613718411552,
+            "outlier_ratio": 0.016218469877006463,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "this_8",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9420139347547709,
+        "statistics": {
+            "zero_ratio": 0.04296028880866426,
+            "outlier_ratio": 0.015025776436564818,
+            "missing_frames": 0
+        }
+    },
+    {
+        "sequence_id": "this_9",
+        "is_valid": true,
+        "issues": [],
+        "quality_score": 0.9467926328805082,
+        "statistics": {
+            "zero_ratio": 0.03790613718411552,
+            "outlier_ratio": 0.015301229935376278,
+            "missing_frames": 0
+        }
+    }
+]

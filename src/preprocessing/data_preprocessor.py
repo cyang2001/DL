@@ -1,7 +1,7 @@
 
 """
-Author: @Chen YANG
-Date: 2025-06-02
+Author: @De oliveira Léna & @Sron Sarah 
+Date: 03/06/2025
 Data preprocessing module for hand sign language recognition.
 
 This module provides comprehensive data preprocessing capabilities including
@@ -16,6 +16,7 @@ from typing import Dict, List, Tuple, Optional, Union
 from scipy import signal
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 import warnings
+import json
 
 from utils import get_logger
 
@@ -80,27 +81,51 @@ class DataPreprocessor:
             raise ValueError(f"Unsupported normalization method: {self.normalization_method}")
             
     def load_sequence_data(self, data_path: str, word: str) -> Tuple[np.ndarray, List[str]]:
-        """Load all sequences for a specific word.
+        """Load all sequences for a specific word."""
         
-        Args:
-            data_path: Base path to data directory
-            word: Target word to load
-            
-        Returns:
-            Tuple of (sequences_array, sequence_info_list)
-        """
-        # TODO: Implement sequence data loading
-        # 1. Construct word directory path
-        # 2. Get all sequence directories (sorted by number)
-        # 3. Load frames from each sequence directory
-        # 4. Return sequences array and sequence info list
-        
-        self.logger.info(f"Loading sequences for word: {word}")
-        
-        # Placeholder return 
-        sequences = np.empty((0, self.sequence_length, self.feature_dim))
+        word_path = os.path.join(data_path, word)
+        if not os.path.exists(word_path):
+            self.logger.warning(f"Word directory not found: {word_path}")
+            return np.empty((0, self.sequence_length, self.feature_dim)), []
+
+        sequences_list = []
         sequence_info = []
-        
+
+        for seq_folder in sorted(os.listdir(word_path)):
+            seq_path = os.path.join(word_path, seq_folder)
+            if not os.path.isdir(seq_path):
+                continue
+
+            frames = []
+            for i in range(self.sequence_length):
+                frame_path = os.path.join(seq_path, f"{i}.npy")
+                if os.path.exists(frame_path):
+                    try:
+                        keypoints = np.load(frame_path)
+                    except Exception as e:
+                        self.logger.warning(f"Failed to load {frame_path}: {e}")
+                        keypoints = np.zeros(self.feature_dim)
+                else:
+                    keypoints = np.zeros(self.feature_dim)
+                    self.logger.warning(f"Missing frame {i} in {seq_path}, filled with zeros")
+                frames.append(keypoints)
+
+            try:
+                sequence_array = np.stack(frames)
+                sequences_list.append(sequence_array)
+                sequence_info.append(f"{word}_{seq_folder}")
+            except Exception as e:
+                self.logger.warning(f"Failed to stack frames in {seq_path}: {e}")
+                continue
+
+        if sequences_list:
+            sequences = np.stack(sequences_list)
+        else:
+            sequences = np.empty((0, self.sequence_length, self.feature_dim))
+
+        self.logger.info(f"Loaded {len(sequences)} sequences for word: {word}")
+        self.logger.info(f"Shape of loaded data: {sequences.shape}")
+
         return sequences, sequence_info
         
     def validate_sequence(self, sequence: np.ndarray, sequence_id: str = "") -> Dict:
@@ -113,13 +138,16 @@ class DataPreprocessor:
         Returns:
             Dictionary containing validation results
         """
-        # TODO: Implement sequence validation
         # 1. Check sequence shape
-        # 2. Calculate zero ratio and check against threshold
-        # 3. Detect outliers using z-score method
-        # 4. Check for missing frames (all zeros)
-        # 5. Calculate overall quality score
-        
+        if sequence.shape != (self.sequence_length, self.feature_dim):
+            return {
+                "sequence_id": sequence_id,
+                "is_valid": False,
+                "issues": ["Invalid shape"],
+                "quality_score": 0.0,
+                "statistics": {}
+            }
+
         validation_result = {
             "sequence_id": sequence_id,
             "is_valid": True,
@@ -127,8 +155,47 @@ class DataPreprocessor:
             "quality_score": 1.0,
             "statistics": {}
         }
-        
+
+        # 2. Calculate zero ratio
+        total_values = np.prod(sequence.shape)
+        zero_count = np.sum(sequence == 0)
+        zero_ratio = zero_count / total_values
+        validation_result["statistics"]["zero_ratio"] = zero_ratio
+
+        if zero_ratio > self.max_zero_ratio:
+            validation_result["is_valid"] = False
+            validation_result["issues"].append("Too many zeros")
+
+        # 3. Detect outliers using z-score
+        flattened = sequence[sequence != 0]  # ignore zeros
+        if flattened.size > 0:
+            z_scores = np.abs((flattened - np.mean(flattened)) / np.std(flattened))
+            outlier_ratio = np.mean(z_scores > 3)
+        else:
+            outlier_ratio = 1.0
+
+        validation_result["statistics"]["outlier_ratio"] = outlier_ratio
+
+        if outlier_ratio > 0.1:
+            validation_result["is_valid"] = False
+            validation_result["issues"].append("Too many outliers")
+
+        # 4. Check for missing frames (all zeros)
+        missing_frames = np.sum(np.all(sequence == 0, axis=1))
+        validation_result["statistics"]["missing_frames"] = int(missing_frames)
+
+        if missing_frames > 0:
+            validation_result["is_valid"] = False
+            validation_result["issues"].append("Missing frames")
+
+        # 5. Calculate a simple quality score (example heuristic)
+        score = 1.0 - (zero_ratio + outlier_ratio + 0.05 * missing_frames)
+        validation_result["quality_score"] = max(0.0, min(1.0, score))
+
+        self.logger.debug(f"Validation result for {sequence_id}: {validation_result}")
+
         return validation_result
+
         
     def _detect_outliers(self, sequence: np.ndarray) -> float:
         """Detect outliers using z-score method.
@@ -149,13 +216,15 @@ class DataPreprocessor:
         
     def clean_sequence(self, sequence: np.ndarray) -> np.ndarray:
         """Clean a single sequence by handling missing values and outliers.
-        
+    
         Args:
             sequence: Input sequence with shape (sequence_length, feature_dim)
-            
+        
         Returns:
             Cleaned sequence
+        
         """
+    
         # TODO: Implement sequence cleaning
         # 1. Handle missing values with interpolation (if enabled)
         # 2. Apply smoothing filter (if enabled)
@@ -163,24 +232,52 @@ class DataPreprocessor:
         
         cleaned_sequence = sequence.copy()
         
+        # Étape 1 : interpolation des valeurs manquantes
+        if self.enable_interpolation:
+            cleaned_sequence = self._interpolate_missing_values(cleaned_sequence)
+        
+        # Étape 2 : filtre de lissage
+        if self.enable_smoothing:
+            cleaned_sequence = self._smooth_sequence(cleaned_sequence)
+        
         return cleaned_sequence
+
         
     def _interpolate_missing_values(self, sequence: np.ndarray) -> np.ndarray:
-        """Interpolate missing values (zeros) in the sequence.
-        
+        """Interpolate missing values (zeros and NaNs) in the sequence.
+
         Args:
             sequence: Input sequence
             
         Returns:
             Interpolated sequence
         """
-        # TODO: Implement missing value interpolation
-        # 1. For each feature dimension
-        # 2. Find zero and non-zero indices
-        # 3. Use np.interp to interpolate missing values
-        # 4. Return interpolated sequence
-        
-        return sequence.copy()
+        # 1. Copy the sequence to avoid in-place modification
+        interpolated = sequence.copy()
+
+        # 2. Loop over all features (i.e., columns)
+        for i in range(interpolated.shape[1]):
+            feature = interpolated[:, i]
+
+            # 3. Identify valid (non-zero and non-NaN) values
+            valid_idx = np.where((feature != 0) & (~np.isnan(feature)))[0]
+
+            # 4. Interpolate only if we have at least two valid points
+            if len(valid_idx) > 1:
+                interpolated[:, i] = np.interp(
+                    np.arange(len(feature)),
+                    valid_idx,
+                    feature[valid_idx]
+                )
+            elif len(valid_idx) == 1:
+                # 5. If only one valid point, fill entire column with that value
+                interpolated[:, i] = feature[valid_idx[0]]
+            else:
+                # 6. If no valid point, fill with zeros
+                interpolated[:, i] = 0.0
+
+        return interpolated
+
         
     def _smooth_sequence(self, sequence: np.ndarray) -> np.ndarray:
         """Apply smoothing filter to reduce noise.
@@ -195,80 +292,134 @@ class DataPreprocessor:
         # 1. Apply median filter for each feature using scipy.signal.medfilt
         # 2. Only smooth non-zero values
         # 3. Return smoothed sequence
-        
-        return sequence.copy()
-        
+
+        smoothed = sequence.copy()
+
+        for i in range(smoothed.shape[1]):  # pour chaque colonne (feature)
+            feature = smoothed[:, i]
+
+            # Créer un masque des valeurs non nulles
+            nonzero_mask = feature != 0
+
+            # Si au moins 3 valeurs non nulles pour appliquer un filtre de taille 3
+            if np.sum(nonzero_mask) >= 3:
+                # Appliquer un filtre médian sur l'ensemble
+                filtered = signal.medfilt(feature, kernel_size=self.smoothing_window)
+                # Remplacer uniquement les valeurs non nulles par les valeurs filtrées
+                feature[nonzero_mask] = filtered[nonzero_mask]
+                smoothed[:, i] = feature
+
+        return smoothed
+
     def normalize_sequences(self, sequences: np.ndarray, fit_scaler: bool = True) -> np.ndarray:
-        """Normalize sequences using the configured method.
-        
-        Args:
-            sequences: Input sequences with shape (n_sequences, sequence_length, feature_dim)
-            fit_scaler: Whether to fit the scaler on this data
-            
-        Returns:
-            Normalized sequences
-        """
-        # TODO: Implement sequence normalization
-        # 1. Reshape sequences for scaling
-        # 2. Remove all-zero rows before fitting
-        # 3. Fit scaler if required
-        # 4. Transform data
-        # 5. Reshape back to original shape
-        
+        """Normalize sequences using the configured method."""
         if not self.enable_normalization:
             return sequences
-            
+
         self.logger.info(f"Normalizing {len(sequences)} sequences using {self.normalization_method} method")
-        
-        return sequences
+
+        # 1. Reshape to (n_samples, feature_dim)
+        n_seq, seq_len, feat_dim = sequences.shape
+        flat = sequences.reshape(-1, feat_dim)
+
+        # 2. Supprimer les lignes qui sont toutes à zéro
+        non_zero_rows = ~np.all(flat == 0, axis=1)
+        data_to_scale = flat[non_zero_rows]
+
+        # 3. Fit le scaler si demandé
+        if fit_scaler:
+            self._init_scalers()
+            self.scaler.fit(data_to_scale)
+
+        # 4. Appliquer le scaler uniquement sur les lignes non nulles
+        flat_scaled = flat.copy()
+        flat_scaled[non_zero_rows] = self.scaler.transform(data_to_scale)
+
+        # 5. Reformer la forme d'origine
+        return flat_scaled.reshape(n_seq, seq_len, feat_dim)
+
         
     def process_dataset(self, data_path: str, words: List[str], 
-                       output_path: Optional[str] = None) -> Dict:
-        """Process complete dataset with all preprocessing steps.
-        
-        Args:
-            data_path: Path to raw data directory
-            words: List of words to process
-            output_path: Optional path to save processed data
-            
-        Returns:
-            Dictionary containing processed data and statistics
-        """
-        # TODO: Implement complete dataset processing
-        # 1. Initialize result dictionary
-        # 2. Create word to index mapping
-        # 3. For each word:
-        #    - Load sequences
-        #    - Validate each sequence
-        #    - Clean sequences
-        #    - Collect valid sequences
-        # 4. Normalize all sequences
-        # 5. Save processed data if output_path provided
-        # 6. Return processed data dictionary
+                    output_path: Optional[str] = None) -> Dict:
+        """Process complete dataset with all preprocessing steps."""
         
         self.logger.info(f"Processing dataset for {len(words)} words")
-        
+
+        # 1. Initialize result dictionary
         processed_data = {
-            "sequences": np.empty((0, self.sequence_length, self.feature_dim)),
-            "labels": np.array([]),
+            "sequences": [],
+            "labels": [],
             "word_to_idx": {},
             "statistics": {},
             "quality_report": []
         }
-        
+
+        # 2. Create word to index mapping
+        word_to_idx = {word: idx for idx, word in enumerate(words)}
+        processed_data["word_to_idx"] = word_to_idx
+
+        # 3. For each word:
+        for word in words:
+            self.logger.info(f"Processing word: {word}")
+            sequences, infos = self.load_sequence_data(data_path, word)
+
+            valid_sequences = []
+            labels = []
+
+            for i, sequence in enumerate(sequences):
+                seq_id = infos[i] if i < len(infos) else f"{word}_{i}"
+                result = self.validate_sequence(sequence, seq_id)
+                processed_data["quality_report"].append(result)
+
+                if result["is_valid"]:
+                    cleaned = self.clean_sequence(sequence)
+                    valid_sequences.append(cleaned)
+                    labels.append(word_to_idx[word])
+            
+            if valid_sequences:
+                processed_data["sequences"].extend(valid_sequences)
+                processed_data["labels"].extend(labels)
+                processed_data["statistics"][word] = len(valid_sequences)
+
+        # 4. Normalize all sequences
+        if processed_data["sequences"]:
+            sequences_array = np.stack(processed_data["sequences"])
+            normalized = self.normalize_sequences(sequences_array)
+            processed_data["sequences"] = normalized
+            processed_data["labels"] = np.array(processed_data["labels"])
+        else:
+            processed_data["sequences"] = np.empty((0, self.sequence_length, self.feature_dim))
+            processed_data["labels"] = np.array([])
+
+        # 5. Save processed data if output_path provided
+        if output_path:
+            self._save_processed_data(processed_data, output_path)
+
+        # 6. Return processed data dictionary
         return processed_data
+
         
     def _save_processed_data(self, processed_data: Dict, output_path: str) -> None:
-        """Save processed data to disk.
-        
-        Args:
-            processed_data: Dictionary containing processed data
-            output_path: Output directory path
-        """
-        # TODO: Implement data saving
-        # 1. Create output directory
-        # 2. Save sequences and labels as .npy files
-        # 3. Save metadata as JSON
-        # 4. Save quality report as JSON if enabled
-        
-        self.logger.info(f"Saving processed data to: {output_path}") 
+        print(">>> Fonction _save_processed_data appelée")
+
+        """Save processed data to disk."""
+        self.logger.info(f"Saving processed data to: {output_path}")
+
+        os.makedirs(output_path, exist_ok=True)
+
+        # 1. Save sequences and labels
+        np.save(os.path.join(output_path, "sequences.npy"), processed_data["sequences"])
+        np.save(os.path.join(output_path, "labels.npy"), processed_data["labels"])
+
+        # 2. Save metadata (word_to_idx, statistics)
+        metadata = {
+            "word_to_idx": processed_data["word_to_idx"],
+            "statistics": processed_data["statistics"]
+        }
+        with open(os.path.join(output_path, "metadata.json"), "w") as f:
+            json.dump(metadata, f, indent=2)
+
+        # 3. Optionally save quality report
+        if "quality_report" in processed_data:
+            with open(os.path.join(output_path, "quality_report.json"), "w") as f:
+                json.dump(processed_data["quality_report"], f, indent=2)

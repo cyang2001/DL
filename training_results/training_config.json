@@ -1,0 +1,52 @@
+{
+    "data": {
+        "raw_data_path": "MP_data",
+        "processed_data_path": "processed_data",
+        "validation_split": 0.2,
+        "test_split": 0.1,
+        "random_seed": 42
+    },
+    "preprocessing": {
+        "sequence_length": 30,
+        "feature_dim": 1662,
+        "enable_normalization": true,
+        "normalization_method": "standard",
+        "enable_smoothing": true,
+        "smoothing_window": 3,
+        "enable_interpolation": true,
+        "enable_quality_check": true,
+        "max_zero_ratio": 0.3
+    },
+    "augmentation": {
+        "enable_augmentation": true,
+        "augmentation_factor": 2,
+        "augmentation_probability": 0.5,
+        "enable_noise": true,
+        "noise_std": 0.01,
+        "enable_time_warping": true,
+        "enable_spatial_transform": true
+    },
+    "feature_engineering": {
+        "enable_feature_engineering": false,
+        "extract_velocity": true,
+        "extract_acceleration": true,
+        "extract_angles": true,
+        "extract_distances": true
+    },
+    "model": {
+        "lstm_units_1": 64,
+        "lstm_units_2": 48,
+        "dense_units": 32,
+        "dropout": 0.2,
+        "l2_regularization": 0.01,
+        "learning_rate": 0.0005,
+        "confidence_threshold": 0.7,
+        "smoothing_window": 5
+    },
+    "training": {
+        "epochs": 200,
+        "batch_size": 16,
+        "model_save_path": "models/best_hand_sign_model.h5",
+        "plot_history": true
+    }
+}
