@@ -49,7 +49,7 @@ class TrainingManager:
                 "raw_data_path": "MP_data",
                 "processed_data_path": "processed_data",
                 "validation_split": 0.2,
-                "test_split": 0.1,
+                "test_split": 0.3,
                 "random_seed": 42
             },
             "preprocessing": {
@@ -73,7 +73,7 @@ class TrainingManager:
                 "enable_spatial_transform": True
             },
             "feature_engineering": {
-                "enable_feature_engineering": False,
+                "enable_feature_engineering": True,
                 "extract_velocity": True,
                 "extract_acceleration": True,
                 "extract_angles": True,
@@ -83,8 +83,8 @@ class TrainingManager:
                 "lstm_units_1": 64,
                 "lstm_units_2": 48,
                 "dense_units": 32,
-                "dropout": 0.2,
-                "l2_regularization": 0.01,
+                "dropout": 0.4,
+                "l2_regularization": 0.02,
                 "learning_rate": 0.0005,
                 "confidence_threshold": 0.7,
                 "smoothing_window": 5

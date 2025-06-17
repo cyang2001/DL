@@ -139,16 +139,22 @@ class PreprocessingPipeline:
         # 3. Split data into train/val/test
         splits = self._split_dataset(sequences, labels)
 
-        # 4. Apply data augmentation to training data
+        # 4. Fit scaler on training data then normalize all splits
+        self.data_preprocessor.normalize_sequences(splits["X_train"], fit_scaler=True)
+        splits["X_train"] = self.data_preprocessor.normalize_sequences(splits["X_train"], fit_scaler=False)
+        splits["X_val"]   = self.data_preprocessor.normalize_sequences(splits["X_val"],   fit_scaler=False)
+        splits["X_test"]  = self.data_preprocessor.normalize_sequences(splits["X_test"],  fit_scaler=False)
+
+        # 5. Apply data augmentation to training data (after normalization to stay in same scale)
         if self.data_augmentor.enable_augmentation:
             augmented_X, augmented_y = self.data_augmentor.augment_dataset(splits["X_train"], splits["y_train"])
             splits["X_train"] = np.concatenate([splits["X_train"], augmented_X], axis=0)
             splits["y_train"] = np.concatenate([splits["y_train"], augmented_y], axis=0)
 
-        # 5. Compute final statistics
+        # 6. Compute final statistics
         stats = self._compute_final_statistics(splits, processed)
 
-        # 6. Save processed data if requested
+        # 7. Save processed data if requested
         result = {
             "X_train": splits["X_train"],
             "y_train": splits["y_train"],
@@ -164,7 +170,7 @@ class PreprocessingPipeline:
         if save_processed:
             self._save_processed_dataset(result)
 
-        # 7. Return result dictionary
+        # 8. Return result dictionary
         self.logger.info("Preprocessing pipeline completed successfully")
         return result
 
@@ -305,6 +311,19 @@ class PreprocessingPipeline:
         with open(os.path.join(self.processed_data_path, "metadata.json"), "w") as f:
             json.dump(metadata, f, indent=4)
 
+        # 3b. Save fitted scaler for inference
+        try:
+            import joblib
+            joblib.dump(self.data_preprocessor.scaler, os.path.join(self.processed_data_path, "scaler.pkl"))
+            self.logger.info("Scaler saved to scaler.pkl")
+        except ModuleNotFoundError:
+            import pickle
+            with open(os.path.join(self.processed_data_path, "scaler.pkl"), "wb") as f:
+                pickle.dump(self.data_preprocessor.scaler, f)
+            self.logger.info("Scaler saved with pickle")
+        except Exception as e:
+            self.logger.warning(f"Failed to save scaler: {e}")
+
         # 4. Save quality report if available
         quality = result.get("quality_report", [])
         if quality:
@@ -350,6 +369,23 @@ class PreprocessingPipeline:
                 "quality_report": quality_report
             }
 
+            # Load scaler if exists
+            scaler_path = os.path.join(self.processed_data_path, "scaler.pkl")
+            if os.path.exists(scaler_path):
+                try:
+                    import joblib
+                    self.data_preprocessor.scaler = joblib.load(scaler_path)
+                    self.logger.info("Scaler loaded from scaler.pkl")
+                except Exception as e:
+                    # fallback to pickle
+                    try:
+                        import pickle
+                        with open(scaler_path, "rb") as f:
+                            self.data_preprocessor.scaler = pickle.load(f)
+                        self.logger.info("Scaler loaded from pickle fallback")
+                    except Exception:
+                        self.logger.warning(f"Failed to load scaler: {e}")
+
             self.logger.info(f"✅ Dataset chargé depuis : {self.processed_data_path}")
             return result
 
@@ -370,7 +406,13 @@ class PreprocessingPipeline:
         cleaned = self.data_preprocessor.clean_sequence(sequence)
 
         # 2. Normalisation (utilisation d'un scaler déjà entraîné dans le préprocesseur)
-        normalized = self.data_preprocessor.normalize_sequences(cleaned)
+        if not hasattr(self.data_preprocessor.scaler, "mean_"):
+            raise RuntimeError("Scaler is not fitted. Ensure load_processed_dataset() was called and scaler.pkl exists.")
+
+        normalized = self.data_preprocessor.normalize_sequences(
+            cleaned[np.newaxis, ...],
+            fit_scaler=False
+        )[0]
 
         # 3. Feature engineering (si activé dans la config)
         if self.feature_engineer.enable_feature_engineering:

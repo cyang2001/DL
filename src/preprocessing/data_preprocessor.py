@@ -1,4 +1,3 @@
-
 """
 Author: @De oliveira Léna & @Sron Sarah 
 Date: 03/06/2025
@@ -316,7 +315,7 @@ class DataPreprocessor:
         if not self.enable_normalization:
             return sequences
 
-        self.logger.info(f"Normalizing {len(sequences)} sequences using {self.normalization_method} method")
+        #self.logger.info(f"Normalizing {len(sequences)} sequences using {self.normalization_method} method")
 
         # 1. Reshape to (n_samples, feature_dim)
         n_seq, seq_len, feat_dim = sequences.shape
@@ -381,11 +380,9 @@ class DataPreprocessor:
                 processed_data["labels"].extend(labels)
                 processed_data["statistics"][word] = len(valid_sequences)
 
-        # 4. Normalize all sequences
+        # 4. Convert list to numpy (未归一化，由上层 Pipeline 在切分后完成标准化)
         if processed_data["sequences"]:
-            sequences_array = np.stack(processed_data["sequences"])
-            normalized = self.normalize_sequences(sequences_array)
-            processed_data["sequences"] = normalized
+            processed_data["sequences"] = np.stack(processed_data["sequences"])
             processed_data["labels"] = np.array(processed_data["labels"])
         else:
             processed_data["sequences"] = np.empty((0, self.sequence_length, self.feature_dim))
