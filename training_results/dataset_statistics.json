@@ -1,38 +1,38 @@
 {
     "dataset_size": {
-        "total_sequences": 186,
-        "train_size": 168,
-        "val_size": 12,
-        "test_size": 6
+        "total_sequences": 147,
+        "train_size": 116,
+        "val_size": 13,
+        "test_size": 18
     },
     "feature_dimensions": {
         "sequence_length": 30,
-        "feature_dim": 1662
+        "feature_dim": 5074
     },
     "class_distribution": {
         "train": [
-            28.0,
-            28.0,
-            28.0,
-            28.0,
-            28.0,
-            28.0
+            20.0,
+            20.0,
+            16.0,
+            20.0,
+            20.0,
+            20.0
         ],
         "val": [
             2.0,
             2.0,
-            2.0,
+            3.0,
             2.0,
             2.0,
             2.0
         ],
         "test": [
-            1.0,
-            1.0,
-            1.0,
-            1.0,
-            1.0,
-            1.0
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0
         ]
     },
     "data_quality": {

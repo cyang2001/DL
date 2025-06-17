@@ -1,4 +1,3 @@
-
 """
 Author: @De oliveira Léna & @Sron Sarah
 Date: 04/06/2025
@@ -270,22 +269,38 @@ class DataAugmentor:
             [scale * np.sin(rotation),  scale * np.cos(rotation)]
         ])
 
-        # 3. Apply transformation to coordinate features
+        # 3. Apply transformation only to raw 3D keypoints (x,y,z triplets). Additional engineered
+        # features (e.g., velocity, distance, angles) are left unchanged to avoid shape issues.
+
         transformed_sequence = sequence.copy()
-        feature_dim = transformed_sequence.shape[1]
+        T, F = transformed_sequence.shape
 
-        # 4. Handle different feature groups (pose, face, hands)
-        # We assume 3D keypoints ordered as x1, y1, z1, x2, y2, z2, ..., so we reshape
-        reshaped = transformed_sequence.reshape(transformed_sequence.shape[0], -1, 3)  # shape: (T, num_points, 3)
-        
-        for t in range(reshaped.shape[0]):
-            coords = reshaped[t, :, :2]  # Only apply on (x, y)
-            coords = np.dot(coords, transform.T)
-            coords += np.array([tx, ty])
-            reshaped[t, :, :2] = coords  # Replace only x, y
+        # Determine how many complete (x,y,z) triplets we have
+        num_xyz_values = (F // 3) * 3  # largest multiple of 3 <= F
+        coords_flat = transformed_sequence[:, :num_xyz_values]  # (T, P*3)
+        remainder = transformed_sequence[:, num_xyz_values:]     # engineered extra features (if any)
 
-        # 5. Return transformed sequence
-        return reshaped.reshape(sequence.shape)
+        # Reshape coords part to (T, num_points, 3)
+        coords_reshaped = coords_flat.reshape(T, -1, 3)
+
+        # Apply rotation/scale/translation on x,y (indices 0,1)
+        for t in range(T):
+            xy = coords_reshaped[t, :, :2]  # (num_points, 2)
+            xy = np.dot(xy, transform.T)
+            xy += np.array([tx, ty])
+            coords_reshaped[t, :, :2] = xy
+
+        # Flatten back
+        coords_transformed_flat = coords_reshaped.reshape(T, num_xyz_values)
+
+        # Concatenate back engineered features (if any)
+        if remainder.size > 0:
+            transformed_sequence = np.concatenate([coords_transformed_flat, remainder], axis=1)
+        else:
+            transformed_sequence = coords_transformed_flat
+
+        # 5. Return transformed sequence with original shape
+        return transformed_sequence
 
         
     def _speed_variation(self, sequence: np.ndarray) -> np.ndarray:

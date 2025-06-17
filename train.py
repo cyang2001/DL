@@ -173,11 +173,16 @@ class TrainingManager:
         num_classes = y_train.shape[1]
         
         # Initialize classifier
+        inferred_feature_dim = X_train.shape[2]
+
+        # If feature dimension has changed due to feature engineering, propagate back to global config
+        self.config["preprocessing"]["feature_dim"] = inferred_feature_dim
+
         model_config = {
             **self.config["model"],
             "num_classes": num_classes,
             "sequence_length": self.config["preprocessing"]["sequence_length"],
-            "feature_dim": self.config["preprocessing"]["feature_dim"]
+            "feature_dim": inferred_feature_dim
         }
         
         self.classifier = AttentionLSTMClassifier(model_config, self.logger)
@@ -345,7 +350,7 @@ def main():
     trainer = TrainingManager()
     
     # Run full training pipeline
-    results = trainer.run_full_training(force_reprocess=False)
+    results = trainer.run_full_training(force_reprocess=True)
     
     logger.info("Training completed successfully!")
     logger.info(f"Final test accuracy: {results['evaluation_results']['accuracy']:.4f}")

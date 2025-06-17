@@ -48,7 +48,7 @@ PREPROCESSING_CONFIG = {
     "enable_smoothing": True,
     "smoothing_window": 3,
     "enable_interpolation": True,
-    "enable_quality_check": False  
+    "enable_quality_check": False,
 }
 
 logger = get_logger(__name__)
@@ -83,7 +83,7 @@ def load_class_names() -> List[str]:
     return class_names
 
 
-def _initialize_classifier(num_classes: int) -> AttentionLSTMClassifier:
+def _initialize_classifier(num_classes: int, feature_dim: int) -> AttentionLSTMClassifier:
     """Load the trained model and return a classifier instance.
 
     Returns
@@ -94,7 +94,7 @@ def _initialize_classifier(num_classes: int) -> AttentionLSTMClassifier:
     cfg = {
         "num_classes": num_classes,
         "sequence_length": SEQUENCE_LENGTH,
-        "feature_dim": FEATURE_DIM,
+        "feature_dim": feature_dim,
 
         "lstm_units_1": 64,
         "lstm_units_2": 48,
@@ -123,10 +123,39 @@ def _initialize_preprocessor() -> PreprocessingPipeline:
         "processed_data_path": "processed_data",  # for scaler
         "preprocessing": PREPROCESSING_CONFIG,
         "augmentation": {"enable_augmentation": False},
-        "feature_engineering": {"enable_feature_engineering": False},
+        "feature_engineering": {
+            "enable_feature_engineering": True,
+            "extract_velocity": True,
+            "extract_acceleration": True,
+            "extract_angles": True,
+            "extract_distances": True,
+        },
     }
     pp = PreprocessingPipeline(pipeline_cfg, logger)
-    pp.load_processed_dataset()  # Load scaler
+    pp.load_processed_dataset() 
+    if not hasattr(pp.data_preprocessor.scaler, "mean_"):
+        logger.warning("Scaler missing or not fitted – fitting on all processed sequences now …")
+
+        seq_path = os.path.join(PROCESSED_DATA_DIR, "sequences.npy")
+        if not os.path.exists(seq_path):
+            logger.error("Could not find sequences.npy to fit scaler. Run preprocessing first.")
+            sys.exit(1)
+
+        sequences = np.load(seq_path)
+        pp.data_preprocessor.normalize_sequences(sequences, fit_scaler=True)
+
+        # Save fitted scaler for future runs
+        scaler_path = os.path.join(PROCESSED_DATA_DIR, "scaler.pkl")
+        try:
+            import joblib
+            joblib.dump(pp.data_preprocessor.scaler, scaler_path)
+            logger.info("Fitted scaler saved to scaler.pkl (joblib)")
+        except ModuleNotFoundError:
+            import pickle
+            with open(scaler_path, "wb") as f:
+                pickle.dump(pp.data_preprocessor.scaler, f)
+            logger.info("Fitted scaler saved to scaler.pkl (pickle)")
+
     return pp
 
 
@@ -146,7 +175,13 @@ def run_realtime_demo() -> None:
                                     refine_face_landmarks=False)
 
     preprocessor = _initialize_preprocessor()
-    classifier = _initialize_classifier(num_classes=len(CLASS_NAMES))
+
+    # Infer engineered feature dimension using dummy engineered sequence
+    dummy_raw = np.zeros((SEQUENCE_LENGTH, FEATURE_DIM))
+    dummy_eng = _initialize_preprocessor().feature_engineer.extract_features(dummy_raw)
+    feature_dim_eng = dummy_eng.shape[1]
+
+    classifier = _initialize_classifier(num_classes=len(CLASS_NAMES), feature_dim=feature_dim_eng)
 
     sequence_frames: List[np.ndarray] = []
     recognized_sentence: List[str] = []

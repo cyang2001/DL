@@ -8,7 +8,7 @@
     },
     "preprocessing": {
         "sequence_length": 30,
-        "feature_dim": 1662,
+        "feature_dim": 5074,
         "enable_normalization": true,
         "normalization_method": "standard",
         "enable_smoothing": true,

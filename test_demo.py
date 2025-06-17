@@ -68,16 +68,22 @@ def init_preprocessor():
             "enable_quality_check": False,
         },
         "augmentation": {"enable_augmentation": False},
-        "feature_engineering": {"enable_feature_engineering": False},
+        "feature_engineering": {
+            "enable_feature_engineering": True,
+            "extract_velocity": True,
+            "extract_acceleration": True,
+            "extract_angles": True,
+            "extract_distances": True,
+        },
     }
     return PreprocessingPipeline(cfg, logger)
 
 
-def init_classifier(num_classes: int):
+def init_classifier(num_classes: int, feature_dim: int):
     cfg = {
         "num_classes": num_classes,
         "sequence_length": SEQUENCE_LENGTH,
-        "feature_dim": FEATURE_DIM,
+        "feature_dim": feature_dim,
         "lstm_units_1": 64,
         "lstm_units_2": 48,
         "dense_units": 32,
@@ -117,12 +123,23 @@ def main():
     # Load existing scaler
     preprocessor.load_processed_dataset()
 
-    # If scaler still not fitted (e.g., scaler.pkl missing), fit on full dataset
+    # If scaler still not fitted (e.g., scaler.pkl missing), fit on engineered full dataset
     if not hasattr(preprocessor.data_preprocessor.scaler, "mean_"):
         logger.warning("Scaler missing, fitting on entire dataset for this test run")
-        preprocessor.data_preprocessor.normalize_sequences(sequences, fit_scaler=True)
 
-    classifier = init_classifier(num_classes)
+        # Apply same feature engineering as used during training
+        if preprocessor.feature_engineer.enable_feature_engineering:
+            sequences_fe = np.array([preprocessor.feature_engineer.extract_features(s) for s in sequences])
+        else:
+            sequences_fe = sequences
+
+        preprocessor.data_preprocessor.normalize_sequences(sequences_fe, fit_scaler=True)
+
+    # Infer engineered feature dimension using first sequence
+    sample_engineered = preprocessor.feature_engineer.extract_features(sequences_sel[0])
+    feature_dim = sample_engineered.shape[1]
+
+    classifier = init_classifier(num_classes, feature_dim)
 
     y_true = []
     y_pred = []

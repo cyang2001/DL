@@ -386,7 +386,7 @@ class PreprocessingPipeline:
                     except Exception:
                         self.logger.warning(f"Failed to load scaler: {e}")
 
-            self.logger.info(f"✅ Dataset chargé depuis : {self.processed_data_path}")
+            self.logger.info(f" Dataset chargé depuis : {self.processed_data_path}")
             return result
 
         except Exception as e:
@@ -405,20 +405,20 @@ class PreprocessingPipeline:
         # 1. Nettoyage (interpolation, lissage, etc.)
         cleaned = self.data_preprocessor.clean_sequence(sequence)
 
-        # 2. Normalisation (utilisation d'un scaler déjà entraîné dans le préprocesseur)
+        # 2. Feature engineering (do this BEFORE normalization so scaler matches training)
+        if self.feature_engineer.enable_feature_engineering:
+            engineered = self.feature_engineer.extract_features(cleaned)
+        else:
+            engineered = cleaned
+
+        # 3. Normalisation (utilisation d'un scaler déjà entraîné dans le préprocesseur)
         if not hasattr(self.data_preprocessor.scaler, "mean_"):
             raise RuntimeError("Scaler is not fitted. Ensure load_processed_dataset() was called and scaler.pkl exists.")
 
         normalized = self.data_preprocessor.normalize_sequences(
-            cleaned[np.newaxis, ...],
+            engineered[np.newaxis, ...],
             fit_scaler=False
         )[0]
 
-        # 3. Feature engineering (si activé dans la config)
-        if self.feature_engineer.enable_feature_engineering:
-            processed = self.feature_engineer.extract_features(normalized)
-        else:
-            processed = normalized
-
         # 4. Retourner la séquence prête pour l'inférence
-        return processed
+        return normalized
