@@ -370,7 +370,7 @@ class PreprocessingPipeline:
         cleaned = self.data_preprocessor.clean_sequence(sequence)
 
         # 2. Normalisation (utilisation d'un scaler déjà entraîné dans le préprocesseur)
-        normalized = self.data_preprocessor.normalize_sequence(cleaned)
+        normalized = self.data_preprocessor.normalize_sequences(cleaned)
 
         # 3. Feature engineering (si activé dans la config)
         if self.feature_engineer.enable_feature_engineering:
