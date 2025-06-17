@@ -31,8 +31,8 @@ class AttentionLSTMClassifier:
                 "lstm_units_1": 64,
                 "lstm_units_2": 48,
                 "dense_units": 32,
-                "dropout": 0.2,
-                "l2_regularization": 0.01,
+                "dropout": 0.4,
+                "l2_regularization": 0.02,
                 "learning_rate": 0.0005,
                 "confidence_threshold": 0.7,
                 "smoothing_window": 5
@@ -46,6 +46,7 @@ class AttentionLSTMClassifier:
         self.lstm_units_2 = config_dict.get("lstm_units_2")
         self.dense_units = config_dict.get("dense_units")
         self.dropout = config_dict.get("dropout")
+        self.recurrent_dropout = config_dict.get("recurrent_dropout", 0.3)
         self.l2_regularization = config_dict.get("l2_regularization")
         self.learning_rate = config_dict.get("learning_rate")
         self.confidence_threshold = config_dict.get("confidence_threshold")
@@ -79,7 +80,7 @@ class AttentionLSTMClassifier:
             return_sequences=True, 
             dropout=self.dropout,
             kernel_regularizer=l2(self.l2_regularization),
-            recurrent_dropout=0.1,
+            recurrent_dropout=self.recurrent_dropout,
             name='lstm1')(inputs)
         lstm1 = LayerNormalization(name='layer_norm1')(lstm1)
         lstm2 = LSTM(
@@ -87,7 +88,7 @@ class AttentionLSTMClassifier:
             return_sequences=True, 
             dropout=self.dropout,
             kernel_regularizer=l2(self.l2_regularization),
-            recurrent_dropout=0.1,
+            recurrent_dropout=self.recurrent_dropout,
             name='lstm2')(lstm1)
         lstm2 = LayerNormalization(name='layer_norm2')(lstm2)
         
@@ -128,7 +129,7 @@ class AttentionLSTMClassifier:
         callbacks = [
             EarlyStopping(
                 monitor='val_accuracy',
-                patience=30,
+                patience=15,
                 restore_best_weights=True,
                 verbose=1,
                 mode='max'
@@ -309,7 +310,27 @@ class AttentionLSTMClassifier:
         Args:
             filepath: Path to the saved model
         """
-        self.model = load_model(filepath)
+        # Strategy: rebuild architecture in current process (Lambda has correct globals)
+        # then load only the weights from checkpoint. If weight loading fails, fallback
+        # to full `load_model` with custom_objects.
+
+        try:
+            model_tmp = self.build_model()  # rebuild fresh architecture
+            model_tmp.load_weights(filepath)
+            self.model = model_tmp
+            self.logger.info("Weights loaded into freshly built architecture")
+        except Exception as e:
+            self.logger.warning(f"Weight-only loading failed ({e}), falling back to full load_model")
+            custom_objects = {
+                'tf': tf,
+                'TopKCategoricalAccuracy': TopKCategoricalAccuracy
+            }
+            self.model = load_model(filepath, custom_objects=custom_objects, compile=False)
+            self.model.compile(
+                optimizer=Adam(learning_rate=self.learning_rate),
+                loss='categorical_crossentropy',
+                metrics=['accuracy', TopKCategoricalAccuracy(k=3, name='top_3_accuracy')]
+            )
         self.is_trained = True
         self.logger.info(f"Model loaded from {filepath}")
     

@@ -3,7 +3,7 @@
         "raw_data_path": "MP_data",
         "processed_data_path": "processed_data",
         "validation_split": 0.2,
-        "test_split": 0.1,
+        "test_split": 0.3,
         "random_seed": 42
     },
     "preprocessing": {
@@ -27,7 +27,7 @@
         "enable_spatial_transform": true
     },
     "feature_engineering": {
-        "enable_feature_engineering": false,
+        "enable_feature_engineering": true,
         "extract_velocity": true,
         "extract_acceleration": true,
         "extract_angles": true,
@@ -37,8 +37,8 @@
         "lstm_units_1": 64,
         "lstm_units_2": 48,
         "dense_units": 32,
-        "dropout": 0.2,
-        "l2_regularization": 0.01,
+        "dropout": 0.4,
+        "l2_regularization": 0.02,
         "learning_rate": 0.0005,
         "confidence_threshold": 0.7,
         "smoothing_window": 5

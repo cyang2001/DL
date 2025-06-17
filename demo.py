@@ -11,6 +11,7 @@ concatenated into a sentence.
 import os
 import sys
 import logging
+import json
 from typing import List
 
 import cv2
@@ -28,14 +29,13 @@ SEQUENCE_LENGTH = 30
 FEATURE_DIM = 1662
 
 
-CLASS_NAMES: List[str] = [
-    "class",       
-    "deep",         
-    "for",          
-    "learning",     
-    "thank you",    
-    "this"         
-]
+# Class names will be loaded from processed_data/metadata.json to ensure
+# consistent label–index mapping.
+# Initialized as empty; populated at runtime in `load_class_names()`.
+
+CLASS_NAMES: List[str] = []
+
+PROCESSED_DATA_DIR = "processed_data"  # Directory containing metadata.json
 
 MODEL_PATH = "models/best_hand_sign_model.h5"
 
@@ -54,7 +54,36 @@ PREPROCESSING_CONFIG = {
 logger = get_logger(__name__)
 
 
-def _initialize_classifier() -> AttentionLSTMClassifier:
+def load_class_names() -> List[str]:
+    """Load ordered class names from the metadata generated during preprocessing.
+
+    Returns
+    -------
+    List[str]
+        List where index *i* corresponds to the label ID used for training.
+    """
+    meta_path = os.path.join(PROCESSED_DATA_DIR, "metadata.json")
+    if not os.path.exists(meta_path):
+        logger.error(f"metadata.json not found at {meta_path}. Run preprocessing first.")
+        sys.exit(1)
+
+    with open(meta_path, "r") as f:
+        meta = json.load(f)
+
+    word_to_idx = meta.get("word_to_idx")
+    if not word_to_idx:
+        logger.error("word_to_idx missing in metadata.json")
+        sys.exit(1)
+
+    # Build list ordered by index 0..N-1
+    idx_to_word = {int(idx): w for w, idx in word_to_idx.items()}
+    class_names = [idx_to_word[i] for i in range(len(idx_to_word))]
+
+    logger.info("Label mapping (index → word): " + str({i: w for i, w in enumerate(class_names)}))
+    return class_names
+
+
+def _initialize_classifier(num_classes: int) -> AttentionLSTMClassifier:
     """Load the trained model and return a classifier instance.
 
     Returns
@@ -63,7 +92,7 @@ def _initialize_classifier() -> AttentionLSTMClassifier:
         Loaded classifier ready for inference.
     """
     cfg = {
-        "num_classes": len(CLASS_NAMES),
+        "num_classes": num_classes,
         "sequence_length": SEQUENCE_LENGTH,
         "feature_dim": FEATURE_DIM,
 
@@ -91,20 +120,23 @@ def _initialize_preprocessor() -> PreprocessingPipeline:
     """Create a preprocessing pipeline for single-sequence inference."""
     pipeline_cfg = {
         "raw_data_path": "",  # not used
-        "processed_data_path": "",  # not used
+        "processed_data_path": "processed_data",  # for scaler
         "preprocessing": PREPROCESSING_CONFIG,
         "augmentation": {"enable_augmentation": False},
         "feature_engineering": {"enable_feature_engineering": False},
     }
-    return PreprocessingPipeline(pipeline_cfg, logger)
-
-
+    pp = PreprocessingPipeline(pipeline_cfg, logger)
+    pp.load_processed_dataset()  # Load scaler
+    return pp
 
 
 def run_realtime_demo() -> None:
     """Start webcam and perform real-time hand sign language recognition."""
     logger.info("Initializing real-time demo …")
 
+    # Load class mapping first
+    global CLASS_NAMES
+    CLASS_NAMES = load_class_names()
 
     mp_holistic = mp.solutions.holistic
     holistic = mp_holistic.Holistic(static_image_mode=False,
@@ -114,7 +146,7 @@ def run_realtime_demo() -> None:
                                     refine_face_landmarks=False)
 
     preprocessor = _initialize_preprocessor()
-    classifier = _initialize_classifier()
+    classifier = _initialize_classifier(num_classes=len(CLASS_NAMES))
 
     sequence_frames: List[np.ndarray] = []
     recognized_sentence: List[str] = []
@@ -173,7 +205,6 @@ def run_realtime_demo() -> None:
         cv2.destroyAllWindows()
         holistic.close()
         logger.info("Demo terminated.")
-
 
 
 if __name__ == "__main__":
